@@ -18,6 +18,7 @@ include "./config.php";
             $profile_file_path = $instantiate_config["archive"]["path"] . "/" . $selected_profile;
             if (is_dir($profile_file_path)) { // Only continue if this file-path is a directory.
                 $profile_files = array_diff(scandir($profile_file_path), array(".", ".."));
+                asort($profile_files);
 
 
                 $posts = array();
@@ -28,11 +29,19 @@ include "./config.php";
                     $file_timestamp_unix = strtotime($file_timestamp_human);
 
 
-                    if ($file_timestamp_unix > 0){
+                    if ($file_timestamp_unix > 0) {
+                        $file_extension = strtolower(pathinfo($profile_file, PATHINFO_EXTENSION));
                         if (strtolower(pathinfo($profile_file)["extension"]) == "txt") {
                             $posts[$file_timestamp_unix]["description"] = file_get_contents($profile_file_path . "/" . $profile_file);
-                        } else if (in_array(strtolower(pathinfo($profile_file, PATHINFO_EXTENSION)), array("jpg", "jpeg", "webp", "png", "m4v", "mp4", "webm"))) {
-                            $posts[$file_timestamp_unix]["images"][] = $profile_file_path . "/" . $profile_file;
+                        } else if (in_array($file_extension, array("jpg", "jpeg", "webp", "png", "m4v", "mp4", "webm"))) {
+                            $slide_id = intval(end(explode("_", pathinfo($profile_file, PATHINFO_FILENAME))));
+                            if (isset($posts[$file_timestamp_unix]["images"]) and in_array($slide_id, array_keys($posts[$file_timestamp_unix]["images"]))) { // Check to see if there is already an entry for this slide in the post data.
+                                if (in_array($file_extension, array("m4v", "mp4", "webm"))) { // Only overwrite the existing file for this slide if this file is a video.
+                                    $posts[$file_timestamp_unix]["images"][$slide_id] = $profile_file_path . "/" . $profile_file;
+                                }
+                            } else { // Otherwise, this slide needs to be created.
+                                $posts[$file_timestamp_unix]["images"][$slide_id] = $profile_file_path . "/" . $profile_file;
+                            }
                         }
                     }
                 }
@@ -43,11 +52,15 @@ include "./config.php";
                     echo "    <div>";
                     foreach ($posts[$timestamp]["images"] as $image) {
                         if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("jpg", "jpeg", "webp", "png"))) {
-                            $profile_photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($image));
-                            echo "<a href='" . $profile_photo_data . "' target='_blank'><img src='" . $profile_photo_data . "'></a>";
+                            $photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($image));
+                            echo "<a href='" . $photo_data . "' target='_blank'><img src='" . $photo_data . "'></a>";
                         } else if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("mp4", "m4v", "webm"))) {
-                            $profile_photo_data = "data:video/mp4;base64, " . base64_encode(file_get_contents($image));
-                            echo "<a href='" . $profile_photo_data . "' target='_blank'><video autoplay loop muted src='" . $profile_photo_data . "'></a>";
+                            if (filesize($image) < 10**7) { // Check to see if this file is less than 10MB.
+                                $photo_data = "data:video/mp4;base64, " . base64_encode(file_get_contents($image));
+                                echo "<a href='" . $photo_data . "' target='_blank'><video autoplay loop muted src='" . $photo_data . "'></a>";
+                            } else {
+                                echo "<span><i>Excessive file size</i></span>";
+                            }
                         }
                     }
                     echo "    </div>";
