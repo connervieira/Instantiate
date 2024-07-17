@@ -35,6 +35,7 @@ if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == false
             </div>
             <div class="right">
                 <a class="button" href="./followall.php">Follow All</a>
+                <a class="button" href="./unfollowall.php">Unfollow All</a>
             </div>
         </div>
         <div class="header">
