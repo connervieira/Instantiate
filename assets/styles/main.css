@@ -16,6 +16,22 @@ a {
     color: inherit;
 }
 
+
+.navbar {
+    display: grid;
+    align-items: center; 
+    grid-template-columns: 1fr 1fr;
+    column-gap: 5px;
+}
+.navbar .left {
+    float: left;
+    text-align: left;
+}
+.navbar .right {
+    float: right;
+    text-align: right;
+}
+
 .header {
     display: grid;
     align-items: center; 
@@ -31,6 +47,9 @@ a {
 .button {
     background: #333333;
     padding: 10px;
+    border-radius: 10px;
+    line-height: 40px;    
+    margin: 2px;
 }
 
 .profile_card {
@@ -60,8 +79,24 @@ a {
     text-align: left;
     margin: 20px;
 }
+.post_card .post_header {
+    display: inline-block;
+    height:50px;
+    margin-bottom: 10px;
+}
+.post_card .post_header h4 {
+    display: inline-block;
+}
 .post_card img, .post_card video {
     height: 200px;
     margin: 10px;
     border-radius: 20px;
+}
+.post_card .avatar {
+    float: left;
+    height: 50px;
+    border-radius: 25px;
+}
+.post_card hr {
+    opacity: 0.4
 }

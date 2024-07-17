@@ -1,5 +1,35 @@
 <?php
 include "./config.php";
+
+include $instantiate_config["auth"]["provider"]["core"];
+
+if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == false) {
+    if ($instantiate_config["auth"]["access"]["mode"] == "whitelist") {
+        if (in_array($username, $instantiate_config["auth"]["access"]["whitelist"]) == false) { // Check to make sure this user is not in blacklist.
+            echo "<p>You are not permitted to access this utility.</p>";
+            exit();
+        }
+    } else if ($instantiate_config["auth"]["access"]["mode"] == "blacklist") {
+        if (in_array($username, $instantiate_config["auth"]["access"]["blacklist"]) == true) { // Check to make sure this user is not in blacklist.
+            echo "<p>You are not permitted to access this utility.</p>";
+            exit();
+        }
+    } else {
+        echo "<p>The configured access mode is invalid.</p>";
+        exit();
+    }
+}
+
+if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if the user is logged in.
+    $instantiate_database = load_database();
+    if (isset($instantiate_database[$username]) == false) { // Check to see if the current user does not yet exist in the instantiate database.
+        // Initialize this user in the database.
+        $instantiate_database[$username] = array();
+        $instantiate_database[$username]["following"] = array();
+    }
+}
+
+$selected_profile = $_GET["profile"];
 ?>
 <!DOCTYPE html>
 <html>
@@ -9,10 +39,34 @@ include "./config.php";
         <link rel="stylesheet" href="./assets/fonts/lato/latofonts.css">
     </head>
     <body>
-        <a class="button" href="./profilelist.php">Back</a>
+        <div class="navbar">
+            <div class="left">
+                <a class="button" href="./profilelist.php">Explore</a>
+            </div>
+            <div class="right">
+                <?php
+                if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if the user is logged in.
+                    if (in_array($selected_profile, array_keys($instantiate_database[$username]["following"]))) { // Check to see if the user is following this profile.
+                        echo "<a class=\"button\" href=\"./profileunfollow.php?profile=" . $_GET["profile"] . "\">Unfollow</a>";
+                    } else {
+                        echo "<a class=\"button\" href=\"./profilefollow.php?profile=" . $_GET["profile"] . "\">Follow</a>";
+                    }
+                }
+                ?>
+            </div>
+        </div>
+        <div class="header">
+            <div>
+                <h1><?php echo htmlspecialchars($instantiate_config["branding"]["product_name"]); ?></h1>
+                <h2>View Profile</h2>
+            </div>
+            <div>
+                <a href="https://v0lttech.com"><img src="./assets/img/icons/v0lt.svg"></a>
+                <a href="https://instagram.com"><img src="./assets/img/icons/instagram.svg"></a>
+            </div>
+        </div>
+        <hr>
         <?php
-        $selected_profile = $_GET["profile"];
-
         $profiles = array_diff(scandir($instantiate_config["archive"]["path"]), array(".", ".."));
         if (in_array($selected_profile, $profiles)) {
             $profile_file_path = $instantiate_config["archive"]["path"] . "/" . $selected_profile;
@@ -52,11 +106,19 @@ include "./config.php";
                     echo "    <div>";
                     foreach ($posts[$timestamp]["images"] as $image) {
                         if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("jpg", "jpeg", "webp", "png"))) {
-                            $photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($image));
+                            if (substr($image, 0, 2) == "./") { // Check to see if this image path is relative to the webpage.
+                                $photo_data = $image;
+                            } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
+                                $photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($image));
+                            }
                             echo "<a href='" . $photo_data . "' target='_blank'><img src='" . $photo_data . "'></a>";
                         } else if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("mp4", "m4v", "webm"))) {
                             if (filesize($image) < 10**7) { // Check to see if this file is less than 10MB.
-                                $photo_data = "data:video/mp4;base64, " . base64_encode(file_get_contents($image));
+                                if (substr($image, 0, 2) == "./") { // Check to see if this image path is relative to the webpage.
+                                    $photo_data = $image;
+                                } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
+                                    $photo_data = "data:video/mp4;base64, " . base64_encode(file_get_contents($image));
+                                }
                                 echo "<a href='" . $photo_data . "' target='_blank'><video autoplay loop muted src='" . $photo_data . "'></a>";
                             } else {
                                 echo "<span><i>Excessive file size</i></span>";

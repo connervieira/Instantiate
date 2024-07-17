@@ -1,5 +1,33 @@
 <?php
 include "./config.php";
+
+include $instantiate_config["auth"]["provider"]["core"];
+
+if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == false) {
+    if ($instantiate_config["auth"]["access"]["mode"] == "whitelist") {
+        if (in_array($username, $instantiate_config["auth"]["access"]["whitelist"]) == false) { // Check to make sure this user is not in blacklist.
+            echo "<p>You are not permitted to access this utility.</p>";
+            exit();
+        }
+    } else if ($instantiate_config["auth"]["access"]["mode"] == "blacklist") {
+        if (in_array($username, $instantiate_config["auth"]["access"]["blacklist"]) == true) { // Check to make sure this user is not in blacklist.
+            echo "<p>You are not permitted to access this utility.</p>";
+            exit();
+        }
+    } else {
+        echo "<p>The configured access mode is invalid.</p>";
+        exit();
+    }
+}
+
+if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if the user is logged in.
+    $instantiate_database = load_database();
+    if (isset($instantiate_database[$username]) == false) { // Check to see if the current user does not yet exist in the instantiate database.
+        // Initialize this user in the database.
+        $instantiate_database[$username] = array();
+        $instantiate_database[$username]["following"] = array();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -9,6 +37,13 @@ include "./config.php";
         <link rel="stylesheet" href="./assets/fonts/lato/latofonts.css">
     </head>
     <body>
+        <div class="navbar">
+            <div class="left">
+                <a class="button" href="./">Back</a>
+            </div>
+            <div class="right">
+            </div>
+        </div>
         <div class="header">
             <div>
                 <h1><?php echo htmlspecialchars($instantiate_config["branding"]["product_name"]); ?></h1>
@@ -31,7 +66,11 @@ include "./config.php";
                 foreach ($profile_files as $profile_file) { // Iterate through each file in this profile.
                     if (strpos($profile_file, "profile_pic")) { // Check to see if this file is the profile photo.
                         $profile_photo_filepath = $instantiate_config["archive"]["path"] . "/" . $profile . "/" . $profile_file; // Set the profile photo filepath to this file.
-                        $profile_photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($profile_photo_filepath));
+                        if (substr($profile_photo_filepath, 0, 2) == "./") { // Check to see if this image path is relative to the webpage.
+                            $profile_photo_data = $profile_photo_filepath;
+                        } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
+                            $profile_photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($profile_photo_filepath));
+                        }
                     }
                 }
                 if ($profile_photo_data == "") {
