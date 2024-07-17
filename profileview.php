@@ -127,7 +127,7 @@ $selected_profile = $_GET["profile"];
                     }
                     echo "    </div>";
                     echo "    <p>" . nl2br($posts[$timestamp]["description"]) . "</p>";
-                    echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp) . "</i></p>";
+                    echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["locale"]["timezone_offset"]*3600) . "</i></p>";
                     echo "</div>";
                 }
             } else {

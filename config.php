@@ -1,7 +1,9 @@
 <?php
 $instantiate_config = array();
 $instantiate_config["branding"]["product_name"] = "Instantiate";
-$instantiate_config["archive"]["path"] = "/home/cvieira/Downloads/Instagram/";
+$instantiate_config["archive"]["path"] = "./instagram/";
+
+$instantiate_config["locale"]["timezone_offset"] = -4;
 
 $instantiate_config["auth"]["access"]["whitelist"] = [];
 $instantiate_config["auth"]["access"]["blacklist"] = [];

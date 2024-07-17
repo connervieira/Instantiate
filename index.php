@@ -141,7 +141,7 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                         }
                         echo "    </div>";
                         echo "    <p>" . nl2br($posts[$timestamp][$profile]["description"]) . "</p>";
-                        echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp) . "</i></p>";
+                        echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["locale"]["timezone_offset"]*3600) . "</i></p>";
                         echo "</div>";
                     }
                 }
@@ -152,7 +152,7 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
         } else {
             echo "<p>You are not currently signed in.</p>";
             echo "<p>Sign in to view your feed.</p>";
-            echo "<a class=\"button\" href=\"" . $instantiate_config["auth"]["provider"]["signin"] . "\">Sign In</a>";
+            echo "<a class=\"button\" href=\"" . $instantiate_config["auth"]["provider"]["signin"] . "?redirect=/instantiate/\">Sign In</a>";
         }
         ?>
     </body>
