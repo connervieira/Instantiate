@@ -5,7 +5,7 @@ An offline Instagram archive viewer.
 
 ## Description
 
-Instantiate is a clean and modern web-interface to view an offline Instagram archive created by [Instaloader](https://instaloader.github.io/). Instantiate works entirely offline, and doesn't not need an internet connection to function. It does not collect any telemetry, or communicate with Instagram in any way.
+Instantiate is a clean and modern web-interface to view an offline Instagram archive created by [Instaloader](https://instaloader.github.io/). Instantiate works entirely offline, and does not need an internet connection to function. It does not collect any telemetry, or communicate with Instagram in any way.
 
 
 ## Screenshots
@@ -18,7 +18,7 @@ Instantiate is a clean and modern web-interface to view an offline Instagram arc
 
 ### Private
 
-Instantiate is the most private way to view your Instagram feed, since it uses an offline archive generated Instaloader. No information is ever sent to Instagram.
+Instantiate is the most private way to view your Instagram feed, since it uses an offline archive. No information is ever sent to Instagram.
 
 ### Archive
 
