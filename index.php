@@ -114,37 +114,50 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
 
                 ksort($posts); // Sort the posts in chronological order.
                 $posts = array_reverse($posts, true); // Reverse the order of the posts so that the most recent posts are first.
-                foreach (array_keys($posts) as $timestamp) {
-                    foreach (array_keys($posts[$timestamp]) as $profile) {
-                        echo "<div class='post_card'>";
-                        echo "    <a href=\"./profileview.php?profile=" . $profile . "\"><div class='post_header'>";
-                        echo "         <img class=\"avatar\" src='" . $profile_photos[$profile] . "'><h4>" . $profile . "</h4>";
-                        echo "    </div>";
-                        echo "    <hr>";
-                        echo "    <div>";
-                        foreach ($posts[$timestamp][$profile]["images"] as $image) {
-                            if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("jpg", "jpeg", "webp", "png"))) {
-                                if (substr($image, 0, 2) == "./") { // Check to see if this image path is relative to the webpage.
-                                    $photo_data = $image;
-                                } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
-                                    $photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($image));
-                                }
-                                echo "<a href='" . $photo_data . "' target='_blank'><img src='" . $photo_data . "'></a>";
-                            } else if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("mp4", "m4v", "webm"))) {
-                                if (filesize($image) < 10**7) { // Check to see if this file is less than 10MB.
-                                    $photo_data = "data:video/mp4;base64, " . base64_encode(file_get_contents($image));
-                                    echo "<a href='" . $photo_data . "' target='_blank'><video autoplay loop muted src='" . $photo_data . "'></a>";
-                                } else {
-                                    echo "<span><i>Excessive file size</i></span>";
+
+                $posts_to_display = 10; // This determines how many posts are displayed on one page.
+                $page_number = max([1, intval($_GET["pg"])]);
+                $starting_post = ($page_number-1) * $posts_to_display; // This is the index of the first post that will be displayed.
+                $ending_post = $starting_post + $posts_to_display; // This determines the index of the last post that will be displayed.
+                $displayed_posts = 0; // This will count the post indexes.
+                echo "<a class=\"button\" href=\"?pg=" . $page_number - 1 . "\">Previous Page</a>";
+                echo "<a class=\"button\" href=\"?pg=" . $page_number + 1 . "\">Next Page</a>";
+                foreach (array_keys($posts) as $timestamp) { // Iterate over each post timestamp in the array.
+                    foreach (array_keys($posts[$timestamp]) as $profile) { // Iterate over each user associated with this timestamp (usually just 1).
+                        if ($displayed_posts >= $starting_post and $displayed_posts < $ending_post) { // Check to see if this post is in the expected range.
+                            echo "<div class='post_card'>";
+                            echo "    <a href=\"./profileview.php?profile=" . $profile . "\"><div class='post_header'>";
+                            echo "         <img class=\"avatar\" src='" . $profile_photos[$profile] . "'><h4>" . $profile . "</h4>";
+                            echo "    </div>";
+                            echo "    <hr>";
+                            echo "    <div>";
+                            foreach ($posts[$timestamp][$profile]["images"] as $image) {
+                                if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("jpg", "jpeg", "webp", "png"))) {
+                                    if (substr($image, 0, 2) == "./") { // Check to see if this image path is relative to the webpage.
+                                        $photo_data = $image;
+                                    } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
+                                        $photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($image));
+                                    }
+                                    echo "<a href='" . $photo_data . "' target='_blank'><img src='" . $photo_data . "'></a>";
+                                } else if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("mp4", "m4v", "webm"))) {
+                                    if (filesize($image) < 10**7) { // Check to see if this file is less than 10MB.
+                                        $photo_data = "data:video/mp4;base64, " . base64_encode(file_get_contents($image));
+                                        echo "<a href='" . $photo_data . "' target='_blank'><video autoplay loop muted src='" . $photo_data . "'></a>";
+                                    } else {
+                                        echo "<span><i>Excessive file size</i></span>";
+                                    }
                                 }
                             }
+                            echo "    </div>";
+                            echo "    <p>" . nl2br($posts[$timestamp][$profile]["description"]) . "</p>";
+                            echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["locale"]["timezone_offset"]*3600) . "</i></p>";
+                            echo "</div>";
                         }
-                        echo "    </div>";
-                        echo "    <p>" . nl2br($posts[$timestamp][$profile]["description"]) . "</p>";
-                        echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["locale"]["timezone_offset"]*3600) . "</i></p>";
-                        echo "</div>";
+                        $displayed_posts += 1;
                     }
                 }
+                echo "<a class=\"button\" href=\"?pg=" . $page_number - 1 . "\">Previous Page</a>";
+                echo "<a class=\"button\" href=\"?pg=" . $page_number + 1 . "\">Next Page</a>";
             } else {
                 echo "<p>You are not currently following any profiles.</p>";
                 echo "<a class=\"button\" href=\"./profilelist.php\">Explore</a>";
