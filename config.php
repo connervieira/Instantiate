@@ -1,7 +1,9 @@
 <?php
 $instantiate_config = array();
 $instantiate_config["branding"]["product_name"] = "Instantiate";
+
 $instantiate_config["archive"]["path"] = "./InstagramPersonal/";
+$instantiate_config["archive"]["posts_per_page"] = 10;
 
 $instantiate_config["locale"]["timezone_offset"] = -4;
 

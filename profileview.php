@@ -102,10 +102,9 @@ $selected_profile = $_GET["profile"];
 
                 $posts = array_reverse($posts, true); // Reverse the array, such that newer posts appear first.
 
-                $posts_to_display = 10; // This determines how many posts are displayed on one page.
                 $page_number = max([1, intval($_GET["pg"])]);
-                $starting_post = ($page_number-1) * $posts_to_display; // This is the index of the first post that will be displayed.
-                $ending_post = $starting_post + $posts_to_display; // This determines the index of the last post that will be displayed.
+                $starting_post = ($page_number-1) * $instantiate_config["archive"]["posts_per_page"]; // This is the index of the first post that will be displayed.
+                $ending_post = $starting_post + $instantiate_config["archive"]["posts_per_page"]; // This determines the index of the last post that will be displayed.
                 $displayed_posts = 0; // This will count the post indexes.
                 echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number - 1 . "\">Previous Page</a>";
                 echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number + 1 . "\">Next Page</a>";
