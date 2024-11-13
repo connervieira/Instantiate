@@ -84,11 +84,18 @@ $selected_profile = $_GET["profile"];
 
 
                     if ($file_timestamp_unix > 0) {
+                        if (isset($posts[$file_timestamp_unix]["is_story"]) == false) {
+                            $posts[$file_timestamp_unix]["is_story"] = true; // Assume this post is a story until we find information that suggests otherwise.
+                        }
                         $file_extension = strtolower(pathinfo($profile_file, PATHINFO_EXTENSION));
                         if (strtolower(pathinfo($profile_file)["extension"]) == "txt") {
                             $posts[$file_timestamp_unix]["description"] = file_get_contents($profile_file_path . "/" . $profile_file);
+                            $posts[$file_timestamp_unix]["is_story"] = false; // This post can't be a story because it has an associated text file.
                         } else if (in_array($file_extension, array("jpg", "jpeg", "webp", "png", "m4v", "mp4", "webm"))) {
                             $slide_id = intval(end(explode("_", pathinfo($profile_file, PATHINFO_FILENAME))));
+                            if ($slide_id > 0) { // Check to see if this slide part of a post (i.e. it has a slide number).
+                                $posts[$file_timestamp_unix]["is_story"] = false; 
+                            }
                             if (isset($posts[$file_timestamp_unix]["images"]) and in_array($slide_id, array_keys($posts[$file_timestamp_unix]["images"]))) { // Check to see if there is already an entry for this slide in the post data.
                                 if (in_array($file_extension, array("m4v", "mp4", "webm"))) { // Only overwrite the existing file for this slide if this file is a video.
                                     $posts[$file_timestamp_unix]["images"][$slide_id] = $profile_file_path . "/" . $profile_file;
@@ -100,11 +107,21 @@ $selected_profile = $_GET["profile"];
                     }
                 }
 
+                // Remove stories from the list of posts (if configured to do so).
+                if ($instantiate_config["behavior"]["show_stories"] == false) {
+                    foreach (array_keys($posts) as $timestamp) {
+                        if ($posts[$timestamp]["is_story"] == true) { // Check to see if this post is a story.
+                            unset($posts[$timestamp]); // Remove this post.
+                        }
+                    }
+                }
+
+
                 $posts = array_reverse($posts, true); // Reverse the array, such that newer posts appear first.
 
                 $page_number = max([1, intval($_GET["pg"])]);
-                $starting_post = ($page_number-1) * $instantiate_config["archive"]["posts_per_page"]; // This is the index of the first post that will be displayed.
-                $ending_post = $starting_post + $instantiate_config["archive"]["posts_per_page"]; // This determines the index of the last post that will be displayed.
+                $starting_post = ($page_number-1) * $instantiate_config["behavior"]["posts_per_page"]; // This is the index of the first post that will be displayed.
+                $ending_post = $starting_post + $instantiate_config["behavior"]["posts_per_page"]; // This determines the index of the last post that will be displayed.
                 $displayed_posts = 0; // This will count the post indexes.
                 echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number - 1 . "\">Previous Page</a>";
                 echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number + 1 . "\">Next Page</a>";

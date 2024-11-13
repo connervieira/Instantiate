@@ -40,7 +40,7 @@ $selected_profile = $_GET["profile"];
     <body>
         <div class="navbar">
             <div class="left">
-                <a class="button" href="./profileview.php?profile=<?php echo $selected_profile; ?>">Back</a>
+                <a class="button" href="./account.php">Back</a>
             </div>
             <div class="right">
             </div>

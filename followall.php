@@ -40,7 +40,7 @@ $selected_profile = $_GET["profile"];
     <body>
         <div class="navbar">
             <div class="left">
-                <a class="button" href="./profileview.php?profile=<?php echo $selected_profile; ?>">Back</a>
+                <a class="button" href="./account.php">Back</a>
             </div>
             <div class="right">
             </div>
@@ -71,7 +71,7 @@ $selected_profile = $_GET["profile"];
             echo "<p>Successfully followed all profiles</p>";
             header("Location: ./account.php");
         } else {
-            echo "<p>Are you sure you would like follow all users known to this instance?</b>?</p>";
+            echo "<p>Are you sure you would like follow all users known to this instance?</p>";
             echo "<a class=\"button\" href=\"./followall.php?confirm=" . time() . "\">Confirm</a>";
         }
         ?>

@@ -89,13 +89,19 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                                 $file_timestamp_human = str_replace("-", "", str_replace("_", " ", substr($profile_file_cleaned, 0, 19)));
                                 $file_timestamp_unix = strtotime($file_timestamp_human);
 
-
                                 if ($file_timestamp_unix > 0) {
+                                    if (isset($posts[$file_timestamp_unix][$profile]["is_story"]) == false) {
+                                        $posts[$file_timestamp_unix][$profile]["is_story"] = true; // Assume this post is a story until we find information that suggests otherwise.
+                                    }
                                     $file_extension = strtolower(pathinfo($profile_file, PATHINFO_EXTENSION));
                                     if (strtolower(pathinfo($profile_file)["extension"]) == "txt") {
                                         $posts[$file_timestamp_unix][$profile]["description"] = file_get_contents($profile_file_path . "/" . $profile_file);
+                                        $posts[$file_timestamp_unix][$profile]["is_story"] = false; // This post can not be a story because it has an associated text file.
                                     } else if (in_array($file_extension, array("jpg", "jpeg", "webp", "png", "m4v", "mp4", "webm"))) {
                                         $slide_id = intval(end(explode("_", pathinfo($profile_file, PATHINFO_FILENAME))));
+                                        if ($slide_id > 0) { // Check to see if this post has slides.
+                                            $posts[$file_timestamp_unix][$profile]["is_story"] = false; // This can not be a story.
+                                        }
                                         if (isset($posts[$file_timestamp_unix][$profile]["images"]) and in_array($slide_id, array_keys($posts[$file_timestamp_unix][$profile]["images"]))) { // Check to see if there is already an entry for this slide in the post data.
                                             if (in_array($file_extension, array("m4v", "mp4", "webm"))) { // Only overwrite the existing file for this slide if this file is a video.
                                                 $posts[$file_timestamp_unix][$profile]["images"][$slide_id] = $profile_file_path . "/" . $profile_file;
@@ -112,12 +118,28 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                     }
                 }
 
+
+                // Remove stories from the list of posts (if configured to do so).
+                if ($instantiate_config["behavior"]["show_stories"] == false) {
+                    foreach (array_keys($posts) as $timestamp) {
+                        foreach (array_keys($posts[$timestamp]) as $profile) { // Iterate over each user associated with this timestamp (usually just 1).
+                            if ($posts[$timestamp][$profile]["is_story"] == true) { // Check to see if this post is a story.
+                                unset($posts[$timestamp][$profile]); // Remove this post.
+                                if (sizeof($posts[$timestamp]) == 0) { // Check to see if this timestamp is now empty.
+                                    unset($posts[$timestamp]); // Remove this timestamp.
+                                }
+                            }
+                        }
+                    }
+                }
+
+
                 ksort($posts); // Sort the posts in chronological order.
                 $posts = array_reverse($posts, true); // Reverse the order of the posts so that the most recent posts are first.
 
                 $page_number = max([1, intval($_GET["pg"])]);
-                $starting_post = ($page_number-1) * $instantiate_config["archive"]["posts_per_page"]; // This is the index of the first post that will be displayed.
-                $ending_post = $starting_post + $instantiate_config["archive"]["posts_per_page"]; // This determines the index of the last post that will be displayed.
+                $starting_post = ($page_number-1) * $instantiate_config["behavior"]["posts_per_page"]; // This is the index of the first post that will be displayed.
+                $ending_post = $starting_post + $instantiate_config["behavior"]["posts_per_page"]; // This determines the index of the last post that will be displayed.
                 $displayed_posts = 0; // This will count the post indexes.
                 echo "<a class=\"button\" href=\"?pg=" . $page_number - 1 . "\">Previous Page</a>";
                 echo "<a class=\"button\" href=\"?pg=" . $page_number + 1 . "\">Next Page</a>";
