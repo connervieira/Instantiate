@@ -3,7 +3,7 @@ include "./config.php";
 
 include $instantiate_config["auth"]["provider"]["core"];
 
-if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == false) {
+if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == false and $username != "") {
     if ($instantiate_config["auth"]["access"]["mode"] == "whitelist") {
         if (in_array($username, $instantiate_config["auth"]["access"]["whitelist"]) == false) { // Check to make sure this user is not in blacklist.
             echo "<p>You are not permitted to access this utility.</p>";
@@ -44,6 +44,9 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
             <div class="right">
                 <?php
                 if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if the user is logged in.
+                    if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == true) {
+                        echo "<a class=\"button\" href=\"./configure.php\">Configure</a>";
+                    }
                     echo "<a class=\"button\" href=\"./account.php\">Account</a>";
                     echo "<a class=\"button\" href=\"" . $instantiate_config["auth"]["provider"]["signout"] . "\">Sign Out</a>";
                 } else { // Otherwise, the user is not signed in.
@@ -141,8 +144,16 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                 $starting_post = ($page_number-1) * $instantiate_config["behavior"]["posts_per_page"]; // This is the index of the first post that will be displayed.
                 $ending_post = $starting_post + $instantiate_config["behavior"]["posts_per_page"]; // This determines the index of the last post that will be displayed.
                 $displayed_posts = 0; // This will count the post indexes.
-                echo "<a class=\"button\" href=\"?pg=" . $page_number - 1 . "\">Previous Page</a>";
-                echo "<a class=\"button\" href=\"?pg=" . $page_number + 1 . "\">Next Page</a>";
+                if ($starting_post > 0) {
+                    echo "<a class=\"button\" href=\"?pg=" . $page_number - 1 . "\">Previous Page</a>";
+                } else {
+                    echo "<a class=\"button disabled\">Previous Page</a>";
+                }
+                if (sizeof($posts) > $ending_post) {
+                    echo "<a class=\"button\" href=\"?pg=" . $page_number + 1 . "\">Next Page</a>";
+                } else {
+                    echo "<a class=\"button disabled\">Next Page</a>";
+                }
                 foreach (array_keys($posts) as $timestamp) { // Iterate over each post timestamp in the array.
                     foreach (array_keys($posts[$timestamp]) as $profile) { // Iterate over each user associated with this timestamp (usually just 1).
                         if ($displayed_posts >= $starting_post and $displayed_posts < $ending_post) { // Check to see if this post is in the expected range.
@@ -171,14 +182,26 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                             }
                             echo "    </div>";
                             echo "    <p>" . nl2br($posts[$timestamp][$profile]["description"]) . "</p>";
-                            echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["locale"]["timezone_offset"]*3600) . "</i></p>";
+                            echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["region"]["timezone_offset"]*3600) . "</i></p>";
                             echo "</div>";
                         }
                         $displayed_posts += 1;
                     }
                 }
-                echo "<a class=\"button\" href=\"?pg=" . $page_number - 1 . "\">Previous Page</a>";
-                echo "<a class=\"button\" href=\"?pg=" . $page_number + 1 . "\">Next Page</a>";
+                if ($ending_post < sizeof($posts)) {
+                    if ($starting_post > 0) {
+                        echo "<a class=\"button\" href=\"?pg=" . $page_number - 1 . "\">Previous Page</a>";
+                    } else {
+                        echo "<a class=\"button disabled\">Previous Page</a>";
+                    }
+                    if (sizeof($posts) > $ending_post) {
+                        echo "<a class=\"button\" href=\"?pg=" . $page_number + 1 . "\">Next Page</a>";
+                    } else {
+                        echo "<a class=\"button disabled\">Next Page</a>";
+                    }
+                } else {
+                    echo "<p>There are no more posts to display.</p>";
+                }
             } else {
                 echo "<p>You are not currently following any profiles.</p>";
                 echo "<a class=\"button\" href=\"./profilelist.php\">Explore</a>";

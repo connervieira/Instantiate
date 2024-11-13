@@ -3,22 +3,6 @@ include "./config.php";
 
 include $instantiate_config["auth"]["provider"]["core"];
 
-if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == false) {
-    if ($instantiate_config["auth"]["access"]["mode"] == "whitelist") {
-        if (in_array($username, $instantiate_config["auth"]["access"]["whitelist"]) == false) { // Check to make sure this user is not in blacklist.
-            echo "<p>You are not permitted to access this utility.</p>";
-            exit();
-        }
-    } else if ($instantiate_config["auth"]["access"]["mode"] == "blacklist") {
-        if (in_array($username, $instantiate_config["auth"]["access"]["blacklist"]) == true) { // Check to make sure this user is not in blacklist.
-            echo "<p>You are not permitted to access this utility.</p>";
-            exit();
-        }
-    } else {
-        echo "<p>The configured access mode is invalid.</p>";
-        exit();
-    }
-}
 
 if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if the user is logged in.
     $instantiate_database = load_database();
@@ -56,6 +40,25 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
         </div>
         <hr>
         <?php
+        if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == false) {
+            if ($instantiate_config["auth"]["access"]["mode"] == "whitelist") {
+                if (in_array($username, $instantiate_config["auth"]["access"]["whitelist"]) == false) { // Check to make sure this user is not in blacklist.
+                    echo "<p>You are not authorized to view this page.</p>";
+                    echo "<a class=\"button\" href=\"" . $instantiate_config["auth"]["provider"]["signin"] . "\">Sign In</a>";
+                    exit();
+                }
+            } else if ($instantiate_config["auth"]["access"]["mode"] == "blacklist") {
+                if (in_array($username, $instantiate_config["auth"]["access"]["blacklist"]) == true) { // Check to make sure this user is not in blacklist.
+                    echo "<p>You are not permitted to access this utility.</p>";
+                    exit();
+                }
+            } else {
+                echo "<p>The configured access mode is invalid.</p>";
+                exit();
+            }
+        }
+
+
         $profiles = array_diff(scandir($instantiate_config["archive"]["path"]), array(".", ".."));
         foreach ($profiles as $profile) {
             $profile_file_path = $instantiate_config["archive"]["path"] . "/" . $profile;

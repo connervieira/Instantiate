@@ -14,6 +14,11 @@ Instantiate is a clean and modern web-interface to view an offline Instagram arc
 ![Profile View](assets/img/screenshots/profileview.png)
 
 
+## Documentation
+
+To learn more about how to install, configure, and use Instaniate, see the [DOCUMENTATION.md](DOCUMENTATION.md) file.
+
+
 ## Features
 
 ### Private

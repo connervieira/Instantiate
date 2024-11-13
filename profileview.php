@@ -123,8 +123,16 @@ $selected_profile = $_GET["profile"];
                 $starting_post = ($page_number-1) * $instantiate_config["behavior"]["posts_per_page"]; // This is the index of the first post that will be displayed.
                 $ending_post = $starting_post + $instantiate_config["behavior"]["posts_per_page"]; // This determines the index of the last post that will be displayed.
                 $displayed_posts = 0; // This will count the post indexes.
-                echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number - 1 . "\">Previous Page</a>";
-                echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number + 1 . "\">Next Page</a>";
+                if ($starting_post > 0) {
+                    echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number - 1 . "\">Previous Page</a>";
+                } else {
+                    echo "<a class=\"button disabled\">Previous Page</a>";
+                }
+                if (sizeof($posts) > $ending_post) {
+                    echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number + 1 . "\">Next Page</a>";
+                } else {
+                    echo "<a class=\"button disabled\">Next Page</a>";
+                }
                 foreach (array_keys($posts) as $timestamp) {
                     if ($displayed_posts >= $starting_post and $displayed_posts < $ending_post) { // Check to see if this post is in the expected range.
                         echo "<div class='post_card'>";
@@ -152,13 +160,25 @@ $selected_profile = $_GET["profile"];
                         }
                         echo "    </div>";
                         echo "    <p>" . nl2br($posts[$timestamp]["description"]) . "</p>";
-                        echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["locale"]["timezone_offset"]*3600) . "</i></p>";
+                        echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["review"]["timezone_offset"]*3600) . "</i></p>";
                         echo "</div>";
                     }
                     $displayed_posts += 1;
                 }
-                echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number - 1 . "\">Previous Page</a>";
-                echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number + 1 . "\">Next Page</a>";
+                if ($ending_post < sizeof($posts)) {
+                    if ($starting_post > 0) {
+                        echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number - 1 . "\">Previous Page</a>";
+                    } else {
+                        echo "<a class=\"button disabled\">Previous Page</a>";
+                    }
+                    if (sizeof($posts) > $ending_post) {
+                        echo "<a class=\"button\" href=\"?profile=" . $selected_profile . "&pg=" . $page_number + 1 . "\">Next Page</a>";
+                    } else {
+                        echo "<a class=\"button disabled\">Next Page</a>";
+                    }
+                } else {
+                    echo "<p>There are no more posts to display.</p>";
+                }
             } else {
                 echo "<p>Error: Invalid profile. The specified profile is not a directory.</p>";
             }

@@ -1,8 +1,6 @@
 html {
     color: white;
     background: black;
-}
-a, p, li, span, noscript, h1, h2, h3, h4, h5, h6, label {
     font-family: LatoWebMedium;
 }
 body {
@@ -10,10 +8,18 @@ body {
 }
 hr {
     color: white;
+    margin-bottom: 20px;
 }
 a {
     text-decoration: underline;
     color: inherit;
+}
+h3, h4 {
+    margin-bottom: 0px;
+}
+input {
+    padding: 5px;
+    border-radius: 5px;
 }
 
 
@@ -48,8 +54,18 @@ a {
     background: #333333;
     padding: 10px;
     border-radius: 10px;
-    line-height: 40px;    
+    margin-top: 10px;
+    line-height: 50px;
     margin: 2px;
+    color:inherit;
+    font-family: inherit;
+    font: inherit;
+    font-size: inherit;
+}
+.disabled {
+    color: #444444;
+    background: #111111;
+    text-decoration: none;
 }
 
 .profile_card {
@@ -99,4 +115,11 @@ a {
 }
 .post_card hr {
     opacity: 0.4
+}
+
+.error {
+    color: red;
+}
+.center {
+    text-align: center;
 }

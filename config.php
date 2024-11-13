@@ -1,21 +1,39 @@
 <?php
-$instantiate_config = array();
-$instantiate_config["branding"]["product_name"] = "Instantiate";
+$config_file = "./config.json";
 
-$instantiate_config["archive"]["path"] = "./InstagramPersonal/";
-$instantiate_config["behavior"]["posts_per_page"] = 10;
-$instantiate_config["behavior"]["show_stories"] = true;
+function save_config($config) {
+    global $config_file;
+    file_put_contents($config_file, json_encode($config, (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)));
+}
 
-$instantiate_config["locale"]["timezone_offset"] = -4;
+if (is_file($config_file) == false) {
+    $instantiate_config = array();
+    $instantiate_config["branding"]["product_name"] = "Instantiate";
 
-$instantiate_config["auth"]["access"]["whitelist"] = [];
-$instantiate_config["auth"]["access"]["blacklist"] = [];
-$instantiate_config["auth"]["access"]["admin"] = ["admin"];
-$instantiate_config["auth"]["access"]["mode"] = "blacklist";
-$instantiate_config["auth"]["provider"]["core"] = "../dropauth/authentication.php";
-$instantiate_config["auth"]["provider"]["signin"] = "../dropauth/signin.php";
-$instantiate_config["auth"]["provider"]["signout"] = "../dropauth/signout.php";
-$instantiate_config["auth"]["provider"]["signup"] = "../dropauth/signup.php";
+    $instantiate_config["archive"]["path"] = "./InstagramPersonal/";
+    $instantiate_config["behavior"]["posts_per_page"] = 10;
+    $instantiate_config["behavior"]["show_stories"] = true;
+
+    $instantiate_config["region"]["timezone_offset"] = -4;
+
+    $instantiate_config["auth"]["access"]["whitelist"] = [];
+    $instantiate_config["auth"]["access"]["blacklist"] = [];
+    $instantiate_config["auth"]["access"]["admin"] = ["admin"];
+    $instantiate_config["auth"]["access"]["mode"] = "blacklist";
+    $instantiate_config["auth"]["provider"]["core"] = "../dropauth/authentication.php";
+    $instantiate_config["auth"]["provider"]["signin"] = "../dropauth/signin.php";
+    $instantiate_config["auth"]["provider"]["signout"] = "../dropauth/signout.php";
+    $instantiate_config["auth"]["provider"]["signup"] = "../dropauth/signup.php";
+
+    save_config($instantiate_config);
+}
+if (is_file($config_file)) {
+    $instantiate_config = json_decode(file_get_contents($config_file), true);
+} else {
+    echo "<p>Failed to load configuration file.</p>";
+    exit();
+}
+
 
 
 function load_database() {
