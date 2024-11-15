@@ -81,7 +81,7 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                             foreach ($profile_files as $profile_file) { // Iterate through each file in this profile.
                                 if (strpos($profile_file, "profile_pic")) { // Check to see if this file is the profile photo.
                                     $profile_photo_filepath = $instantiate_config["archive"]["path"] . "/" . $profile . "/" . $profile_file; // Set the profile photo filepath to this file.
-                                    if (substr($profile_photo_filepath, 0, 2) == "./") { // Check to see if this image path is relative to the webpage.
+                                    if (substr($profile_photo_filepath, 0, 2) == "./" or substr($profile_photo_filepath, 0, 3) == "../") { // Check to see if this image path is relative to the webpage.
                                         $profile_photo_data = $profile_photo_filepath;
                                     } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
                                         $profile_photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($profile_photo_filepath));
@@ -165,7 +165,7 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                             echo "    <div>";
                             foreach ($posts[$timestamp][$profile]["images"] as $image) {
                                 if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("jpg", "jpeg", "webp", "png"))) {
-                                    if (substr($image, 0, 2) == "./") { // Check to see if this image path is relative to the webpage.
+                                    if (substr($image, 0, 2) == "./" or substr($image, 0, 3) == "../") { // Check to see if this image path is relative to the webpage.
                                         $photo_data = $image;
                                     } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
                                         $photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($image));
@@ -173,7 +173,11 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                                     echo "<a href='" . $photo_data . "' target='_blank'><img src='" . $photo_data . "'></a>";
                                 } else if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("mp4", "m4v", "webm"))) {
                                     if (filesize($image) < 10**7) { // Check to see if this file is less than 10MB.
-                                        $photo_data = "data:video/mp4;base64, " . base64_encode(file_get_contents($image));
+                                        if (substr($image, 0, 2) == "./" or substr($image, 0, 3) == "../") { // Check to see if this image path is relative to the webpage.
+                                            $photo_data = $image;
+                                        } else {
+                                            $photo_data = "data:video/mp4;base64, " . base64_encode(file_get_contents($image));
+                                        }
                                         echo "<a href='" . $photo_data . "' target='_blank'><video autoplay loop muted src='" . $photo_data . "'></a>";
                                     } else {
                                         echo "<span><i>Excessive file size</i></span>";

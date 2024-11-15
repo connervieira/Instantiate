@@ -139,7 +139,7 @@ $selected_profile = $_GET["profile"];
                         echo "    <div>";
                         foreach ($posts[$timestamp]["images"] as $image) {
                             if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("jpg", "jpeg", "webp", "png"))) {
-                                if (substr($image, 0, 2) == "./") { // Check to see if this image path is relative to the webpage.
+                                if (substr($image, 0, 2) == "./" or substr($image, 0, 3) == "../") { // Check to see if this image path is relative to the webpage.
                                     $photo_data = $image;
                                 } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
                                     $photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($image));
@@ -147,7 +147,7 @@ $selected_profile = $_GET["profile"];
                                 echo "<a href='" . $photo_data . "' target='_blank'><img src='" . $photo_data . "'></a>";
                             } else if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("mp4", "m4v", "webm"))) {
                                 if (filesize($image) < 10**7) { // Check to see if this file is less than 10MB.
-                                    if (substr($image, 0, 2) == "./") { // Check to see if this image path is relative to the webpage.
+                                    if (substr($image, 0, 2) == "./" or substr($image, 0, 3) == "../") { // Check to see if this image path is relative to the webpage.
                                         $photo_data = $image;
                                     } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
                                         $photo_data = "data:video/mp4;base64, " . base64_encode(file_get_contents($image));
