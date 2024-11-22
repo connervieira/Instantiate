@@ -35,6 +35,7 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
         <title><?php echo htmlspecialchars($instantiate_config["branding"]["product_name"]); ?></title>
         <link rel="stylesheet" href="./assets/styles/main.css">
         <link rel="stylesheet" href="./assets/fonts/lato/latofonts.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
         <div class="navbar">
