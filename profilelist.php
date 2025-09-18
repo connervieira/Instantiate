@@ -63,7 +63,7 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
         $profiles = array_diff(scandir($instantiate_config["archive"]["path"]), array(".", ".."));
         foreach ($profiles as $profile) {
             $profile_file_path = $instantiate_config["archive"]["path"] . "/" . $profile;
-            if (is_dir($profile_file_path)) { // Only continue if this file-path is a directory.
+            if (is_dir($profile_file_path) and is_readable($profile_file_path)) { // Only continue if this file-path is a directory.
                 $profile_files = array_diff(scandir($profile_file_path), array(".", ".."));
 
                 $profile_photo_data = ""; // Set the profile photo data to a blank placeholder.
