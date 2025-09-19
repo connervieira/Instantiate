@@ -83,15 +83,21 @@ $selected_profile = $_GET["profile"];
                     $file_timestamp_human = str_replace("-", "", str_replace("_", " ", substr($profile_file_cleaned, 0, 19)));
                     $file_timestamp_unix = strtotime($file_timestamp_human);
 
+                    if (str_contains($profile_file, "follow") or str_contains($profile_file, "setname") or str_contains($profile_file, "bio")) {
+                        continue;
+                    }
+
 
                     if ($file_timestamp_unix > 0) {
                         if (isset($posts[$file_timestamp_unix]["is_story"]) == false) {
                             $posts[$file_timestamp_unix]["is_story"] = true; // Assume this post is a story until we find information that suggests otherwise.
                         }
                         $file_extension = strtolower(pathinfo($profile_file, PATHINFO_EXTENSION));
-                        if (strtolower(pathinfo($profile_file)["extension"]) == "txt") {
+                        if (strtolower(pathinfo($profile_file)["extension"]) == "txt" and str_ends_with($profile_file, "UTC.txt")) {
                             $posts[$file_timestamp_unix]["description"] = file_get_contents($profile_file_path . "/" . $profile_file);
                             $posts[$file_timestamp_unix]["is_story"] = false; // This post can't be a story because it has an associated text file.
+                        } else if (strtolower(pathinfo($profile_file)["extension"]) == "txt" and str_ends_with($profile_file, "UTC_location.txt")) {
+                            $posts[$file_timestamp_unix]["location"] = file_get_contents($profile_file_path . "/" . $profile_file);
                         } else if (in_array($file_extension, array("jpg", "jpeg", "webp", "png", "m4v", "mp4", "webm"))) {
                             $slide_id = intval(end(explode("_", pathinfo($profile_file, PATHINFO_FILENAME))));
                             if ($slide_id > 0) { // Check to see if this slide part of a post (i.e. it has a slide number).
@@ -161,6 +167,7 @@ $selected_profile = $_GET["profile"];
                         }
                         echo "    </div>";
                         echo "    <p>" . nl2br($posts[$timestamp]["description"]) . "</p>";
+                        echo "    <p style=\"opacity:0.5;\">" . nl2br($posts[$timestamp]["location"]) . "</p>";
                         echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["review"]["timezone_offset"]*3600) . "</i></p>";
                         echo "</div>";
                     }
