@@ -80,6 +80,7 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                 if ($profile_photo_data == "") {
                     $profile_photo_data = "./assets/img/icons/avatar.svg";
                 }
+
                 echo "<a href='./profileview.php?profile=$profile'><div class='profile_card'>";
                 echo "    <h3><img src='" . $profile_photo_data . "'>" . $profile . "</h3>";
                 echo "</div></a>";

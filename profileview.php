@@ -60,6 +60,38 @@ $selected_profile = $_GET["profile"];
             <div>
                 <h1><?php echo htmlspecialchars($instantiate_config["branding"]["product_name"]); ?></h1>
                 <h2>View Profile</h2>
+                <?php
+                $profiles = array_diff(scandir($instantiate_config["archive"]["path"]), array(".", ".."));
+                if (in_array($selected_profile, $profiles)) {
+                    $profile_file_path = $instantiate_config["archive"]["path"] . "/" . $selected_profile;
+                    if (is_dir($profile_file_path)) { // Only continue if this file-path is a directory.
+                        $profile_name_file = $profile_file_path . "/name.txt";
+                        $profile_bio_file = $profile_file_path . "/bio.txt";
+                        $profile_birthday_file = $profile_file_path . "/birthday.txt";
+                        $profile_sex_file = $profile_file_path . "/sex.txt";
+                        $profile_followers_file = $profile_file_path . "/followers.txt";
+                        $profile_following_file = $profile_file_path . "/following.txt";
+
+                        if (file_exists($profile_name_file)) {
+                            echo "<p><b>" . file_get_contents($profile_name_file) . "</b></p>";
+                        }
+                        if (file_exists($profile_bio_file)) {
+                            echo "<p>" . file_get_contents($profile_bio_file) . "</p>";
+                        }
+                        if (file_exists($profile_birthday_file)) {
+                            $birthdate = file_get_contents($profile_birthday_file);
+                            $dt = new DateTime($birthdate);
+                            $birthdate_timestamp = $dt->getTimestamp();
+
+                            echo "<p title=\"" . $birthdate . "\">";
+                            if (file_exists($profile_sex_file)) {
+                                echo trim(file_get_contents($profile_sex_file));
+                            }
+                            echo floor((time() - $birthdate_timestamp) / 31557600 ) . "</p>";
+                        }
+                    }
+                }
+                ?>
             </div>
             <div>
                 <a href="https://v0lttech.com"><img src="./assets/img/icons/v0lt.svg"></a>
@@ -68,9 +100,7 @@ $selected_profile = $_GET["profile"];
         </div>
         <hr>
         <?php
-        $profiles = array_diff(scandir($instantiate_config["archive"]["path"]), array(".", ".."));
         if (in_array($selected_profile, $profiles)) {
-            $profile_file_path = $instantiate_config["archive"]["path"] . "/" . $selected_profile;
             if (is_dir($profile_file_path)) { // Only continue if this file-path is a directory.
                 $profile_files = array_diff(scandir($profile_file_path), array(".", ".."));
                 asort($profile_files);
@@ -93,7 +123,11 @@ $selected_profile = $_GET["profile"];
                             $posts[$file_timestamp_unix]["is_story"] = true; // Assume this post is a story until we find information that suggests otherwise.
                         }
                         $file_extension = strtolower(pathinfo($profile_file, PATHINFO_EXTENSION));
-                        if (strtolower(pathinfo($profile_file)["extension"]) == "txt" and str_ends_with($profile_file, "UTC.txt")) {
+                        if (str_contains($profile_file, "_link.txt") == true) {
+                            $posts[$file_timestamp_unix]["link"] = file_get_contents($profile_file_path . "/" . $profile_file);
+                        } else if (str_contains($profile_file, "_location.txt") == true) {
+                            $posts[$file_timestamp_unix]["location"] = file_get_contents($profile_file_path . "/" . $profile_file);
+                        } else if (strtolower(pathinfo($profile_file)["extension"]) == "txt") {
                             $posts[$file_timestamp_unix]["description"] = file_get_contents($profile_file_path . "/" . $profile_file);
                             $posts[$file_timestamp_unix]["is_story"] = false; // This post can't be a story because it has an associated text file.
                         } else if (strtolower(pathinfo($profile_file)["extension"]) == "txt" and str_ends_with($profile_file, "UTC_location.txt")) {
@@ -167,7 +201,7 @@ $selected_profile = $_GET["profile"];
                         }
                         echo "    </div>";
                         echo "    <p>" . nl2br($posts[$timestamp]["description"]) . "</p>";
-                        echo "    <p style=\"opacity:0.5;\">" . nl2br($posts[$timestamp]["location"]) . "</p>";
+                        echo "    <p style=\"margin-bottom:-15px;opacity:0.5;\"><i>" . $posts[$timestamp]["location"] . "</i></p>";
                         echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["review"]["timezone_offset"]*3600) . "</i></p>";
                         echo "</div>";
                     }
