@@ -30,8 +30,6 @@ This section explains all of the available configuration values. Some values may
     - `path` is the path to your post archive directory (relative to Instantiate).
 - `behavior` contains settings that control how the Instantiate interface behaves.
     - `posts_per_page` is a positive integer number that determines how many posts will be displayed on each page.
-    - `show_stories` determines whether stories will be displayed in the posts timeline.
-        - A file is considered a story if it is only associated with 1 image/video, and is not associated with a text file.
 - `region` contains settings related to regional information.
     - `timezone_offset` defines the hourly difference between the UTC timestamps used by posts in the archive and the timezone you want posts to be displayed as.
 - `auth` contains configuration values related to authentication.

@@ -56,6 +56,7 @@ After the basic set-up process is complete, you should be able to view the Insta
 The default administrator username is "admin". If your DropAuth username is "admin", you can skip to step 3.
 
 1. In the Instantiate directory (ex: `/var/www/html/instantiate/`), open the `config.json` file with your editor of choice.
+    - If you don't see this file, make sure the `instantiate` directory is writable, and you've loaded Instantiate in a browser at least once to trigger the initialization sequence.
 2. Change the `auth>access>admin` list to contain your username.
     - If you don't intend to use the default "admin" username, then you should remove it here for security purposes.
 3. Next, sign in with an admin account using DropAuth (if you haven't already).
