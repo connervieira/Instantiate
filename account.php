@@ -45,8 +45,8 @@ if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == false
                 <h2>Manage Account</h2>
             </div>
             <div>
-                <a href="https://v0lttech.com"><img src="./assets/img/icons/v0lt.svg"></a>
-                <a href="https://instagram.com"><img src="./assets/img/icons/instagram.svg"></a>
+                <a href="https://v0lttech.com"><img class="logo" src="./assets/img/icons/v0lt.svg"></a>
+                <a href="https://instagram.com/<?php echo $selected_profile; ?>"><img class="logo" src="./assets/img/icons/instagram.svg"></a>
             </div>
         </div>
         <hr>

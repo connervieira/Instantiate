@@ -61,8 +61,8 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                 <h1><?php echo htmlspecialchars($instantiate_config["branding"]["product_name"]); ?></h1>
             </div>
             <div>
-                <a href="https://v0lttech.com"><img src="./assets/img/icons/v0lt.svg"></a>
-                <a href="https://instagram.com"><img src="./assets/img/icons/instagram.svg"></a>
+                <a href="https://v0lttech.com"><img class="logo" src="./assets/img/icons/v0lt.svg"></a>
+                <a href="https://instagram.com"><img class="logo" src="./assets/img/icons/instagram.svg"></a>
             </div>
         </div>
         <hr>

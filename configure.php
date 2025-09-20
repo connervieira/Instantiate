@@ -48,11 +48,6 @@ if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == false
                     echo "<p class=\"error\">The posts-per-page is outside of the expected range.</p>";
                     $valid = false;
                 }
-                if ($_POST["behavior>show_stories"] == "on") {
-                    $instantiate_config["behavior"]["show_stories"] = true;
-                } else {
-                    $instantiate_config["behavior"]["show_stories"] = false;
-                }
 
                 $instantiate_config["region"]["timezone_offset"] = intval($_POST["region>timezone_offset"]);
                 if ($instantiate_config["region"]["timezone_offset"] < -12 or $instantiate_config["region"]["timezone_offset"] > 12) {
@@ -179,7 +174,6 @@ if (in_array($username, $instantiate_config["auth"]["access"]["admin"]) == false
                 <label for="archive>path">Directory Path:</label> <input name="archive>path" id="archive>path" type="text" value="<?php echo $instantiate_config["archive"]["path"]; ?>"><br>
                 <h3>Behavior</h3>
                 <label for="behavior>posts_per_page">Posts Per Page:</label> <input name="behavior>posts_per_page" id="behavior>posts_per_page" type="number" step="1" min="1" max="100" value="<?php echo $instantiate_config["behavior"]["posts_per_page"]; ?>"><br>
-                <label for="behavior>show_stories">Show Stories:</label> <input name="behavior>show_stories" id="behavior>show_stories" type="checkbox" <?php if ($instantiate_config["behavior"]["show_stories"] == true) { echo "checked"; } ?>><br>
 
                 <h3>Region</h3>
                 <label for="region>timezone_offset">UTC Offset:</label> <input name="region>timezone_offset" id="region>timezone_offset" type="number" step="1" min="-12" max="12" value="<?php echo $instantiate_config["region"]["timezone_offset"]; ?>"><br>

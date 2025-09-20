@@ -12,14 +12,13 @@ if (is_file($config_file) == false) {
 
     $instantiate_config["archive"]["path"] = "./InstagramPersonal/";
     $instantiate_config["behavior"]["posts_per_page"] = 10;
-    $instantiate_config["behavior"]["show_stories"] = true;
 
     $instantiate_config["region"]["timezone_offset"] = -4;
 
     $instantiate_config["auth"]["access"]["whitelist"] = [];
     $instantiate_config["auth"]["access"]["blacklist"] = [];
     $instantiate_config["auth"]["access"]["admin"] = ["admin"];
-    $instantiate_config["auth"]["access"]["mode"] = "blacklist";
+    $instantiate_config["auth"]["access"]["mode"] = "whitelist";
     $instantiate_config["auth"]["provider"]["core"] = "../dropauth/authentication.php";
     $instantiate_config["auth"]["provider"]["signin"] = "../dropauth/signin.php";
     $instantiate_config["auth"]["provider"]["signout"] = "../dropauth/signout.php";

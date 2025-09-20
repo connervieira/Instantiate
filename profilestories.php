@@ -45,92 +45,19 @@ $selected_profile = $_GET["profile"];
                 <a class="button" href="./profilelist.php">Explore</a>
             </div>
             <div class="right">
-                <?php
-                if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if the user is logged in.
-                    if (in_array($selected_profile, array_keys($instantiate_database[$username]["following"]))) { // Check to see if the user is following this profile.
-                        echo "<a class=\"button\" href=\"./profileunfollow.php?profile=" . $_GET["profile"] . "\">Unfollow</a>";
-                    } else {
-                        echo "<a class=\"button\" href=\"./profilefollow.php?profile=" . $_GET["profile"] . "\">Follow</a>";
-                    }
-                }
-                ?>
             </div>
         </div>
         <div class="header">
             <div>
                 <h1><?php echo htmlspecialchars($instantiate_config["branding"]["product_name"]); ?></h1>
-                <h2>View Profile</h2>
+                <h2>View Stories</h2>
                 <?php
                 $profiles = array_diff(scandir($instantiate_config["archive"]["path"]), array(".", ".."));
                 if (in_array($selected_profile, $profiles)) {
                     $profile_file_path = $instantiate_config["archive"]["path"] . "/" . $selected_profile;
                     if (is_dir($profile_file_path)) { // Only continue if this file-path is a directory.
-                        $profile_files = array_diff(scandir($profile_file_path), array(".", ".."));
-                        asort($profile_files);
-                        foreach ($profile_files as $profile_file) { // Iterate through each file in this profile.
-                            if (str_ends_with($profile_file, "profile_pic.jpg")) {
-                                $profile_avatar_file = $profile_file_path .  "/" . $profile_file;
-                            } else if (str_ends_with($profile_file, "name.txt")) {
-                                $profile_name_file = $profile_file_path .  "/" . $profile_file;
-                            } else if (str_ends_with($profile_file, "bio.txt")) {
-                                $profile_bio_file = $profile_file_path .  "/" . $profile_file;
-                            } else if (str_ends_with($profile_file, "birthday.txt")) {
-                                $profile_birthday_file = $profile_file_path . "/" . $profile_file;
-                            } else if (str_ends_with($profile_file, "sex.txt")) {
-                                $profile_sex_file = $profile_file_path .  "/" . $profile_file;
-                            } else if (str_ends_with($profile_file, "followers.txt")) {
-                                $profile_followers_file = $profile_file_path .  "/" . $profile_file;
-                            } else if (str_ends_with($profile_file, "following.txt")) {
-                                $profile_following_file = $profile_file_path .  "/" . $profile_file;
-                            }
-                        }
-
-
-                        echo "<div style=\"height:100px\">";
-                        if (file_exists($profile_avatar_file)) {
-                            if (substr($profile_avatar_file, 0, 2) == "./") { // Check to see if this image path is relative to the webpage.
-                                $profile_photo_data = $profile_avatar_file;
-                            } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
-                                $profile_photo_data = "data:image/jpeg;base64, " . base64_encode(file_get_contents($profile_photo_filepath));
-                            }
-                            echo "<img class=\"avatar\" style=\"float:left;\" src=\"" . $profile_photo_data . "\">";
-                        }
-                        echo "<p>";
-                        if (file_exists($profile_name_file)) {
-                            echo "<b>" . file_get_contents($profile_name_file) . "</b>";
-                        }
-                        if (file_exists($profile_sex_file)) {
-                            echo "(";
-                            if (file_exists($profile_birthday_file)) {
-                                $birthdate = array_filter(explode("\n", file_get_contents($profile_birthday_file)));
-                                $dt = new DateTime($birthdate[0]);
-                                $birthdate_timestamp = $dt->getTimestamp();
-
-                                if (sizeof($birthdate) > 1) {
-                                    $birthday_precision = intval(trim($birthdate[0], "+- "));
-                                } else {
-                                    $birthday_precision = 0;
-                                }
-
-                                echo "<span";
-                                if ($birthday_precision == 0) {
-                                    echo " title=\"" . $birthdate[0] . "\"";
-                                }
-                                echo ">";
-                                if ($birthday_precision > 0) {
-                                    echo "~";
-                                }
-                                echo floor((time() - $birthdate_timestamp) / 31557600) . "</span>";
-                            }
-                            echo trim(file_get_contents($profile_sex_file));
-                            echo ")";
-                        }
-                        echo "</p>";
-                        if (file_exists($profile_bio_file)) {
-                            echo "<p class=\"profile_bio\">" . nl2br(file_get_contents($profile_bio_file)) . "</p>";
-                        }
-                        echo "</div>";
-                        echo "<br><a class=\"button\" href=\"profilestories.php?profile=$selected_profile\">View Stories</a><br><br>";
+                        echo "<h3>" . htmlspecialchars($selected_profile) . "'s stories</h3>";
+                        echo "<br><a class=\"button\" href=\"profileview.php?profile=$selected_profile\">View Posts</a><br><br>";
                     }
                 }
                 ?>
@@ -146,9 +73,9 @@ $selected_profile = $_GET["profile"];
             if (is_dir($profile_file_path)) { // Only continue if this file-path is a directory.
                 $posts = fetch_posts($profile_file_path);
 
-                // Remove stories from the list of posts.
+                // Remove any post that isn't a story.
                 foreach (array_keys($posts) as $timestamp) {
-                    if ($posts[$timestamp]["is_story"] == true) { // Check to see if this post is a story.
+                    if ($posts[$timestamp]["is_story"] == false) { // Check to see if this post is a story.
                         unset($posts[$timestamp]); // Remove this post.
                     }
                 }
@@ -183,7 +110,7 @@ $selected_profile = $_GET["profile"];
                                 }
                                 echo "<a href='" . $photo_data . "' target='_blank'><img src='" . $photo_data . "'></a>";
                             } else if (in_array(strtolower(pathinfo($image, PATHINFO_EXTENSION)), array("mp4", "m4v", "webm"))) {
-                                if (filesize($image) < 10**7) { // Check to see if this file is less than 10MB.
+                                if (filesize($image) < 50**7) { // Check to see if this file is less than 50MB.
                                     if (substr($image, 0, 2) == "./" or substr($image, 0, 3) == "../") { // Check to see if this image path is relative to the webpage.
                                         $photo_data = $image;
                                     } else { // Otherwise, assume this image path is an absolute path outside of the webpage directory.
@@ -196,8 +123,6 @@ $selected_profile = $_GET["profile"];
                             }
                         }
                         echo "    </div>";
-                        echo "    <p>" . nl2br($posts[$timestamp]["description"]) . "</p>";
-                        echo "    <p style=\"margin-bottom:-15px;opacity:0.5;\"><i>" . $posts[$timestamp]["location"] . "</i></p>";
                         echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["review"]["timezone_offset"]*3600) . "</i></p>";
                         echo "</div>";
                     }
