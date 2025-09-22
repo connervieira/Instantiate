@@ -70,19 +70,35 @@ $selected_profile = $_GET["profile"];
                         foreach ($profile_files as $profile_file) { // Iterate through each file in this profile.
                             if (str_ends_with($profile_file, "profile_pic.jpg")) {
                                 $profile_avatar_file = $profile_file_path .  "/" . $profile_file;
+                            } else if (str_ends_with($profile_file, "setname.txt")) {
+                                $profile_setname_file = $profile_file_path .  "/" . $profile_file;
+                            } else if (str_ends_with($profile_file, "nickname.txt")) {
+                                $profile_nickname_file = $profile_file_path .  "/" . $profile_file;
                             } else if (str_ends_with($profile_file, "name.txt")) {
-                                $profile_name_file = $profile_file_path .  "/" . $profile_file;
+                                $profile_realname_file = $profile_file_path .  "/" . $profile_file;
                             } else if (str_ends_with($profile_file, "bio.txt")) {
                                 $profile_bio_file = $profile_file_path .  "/" . $profile_file;
                             } else if (str_ends_with($profile_file, "birthday.txt")) {
                                 $profile_birthday_file = $profile_file_path . "/" . $profile_file;
                             } else if (str_ends_with($profile_file, "sex.txt")) {
                                 $profile_sex_file = $profile_file_path .  "/" . $profile_file;
+                            } else if (str_ends_with($profile_file, "race.txt")) {
+                                $profile_race_file = $profile_file_path .  "/" . $profile_file;
+                            } else if (str_ends_with($profile_file, "religion.txt")) {
+                                $profile_religion_file = $profile_file_path .  "/" . $profile_file;
                             } else if (str_ends_with($profile_file, "followers.txt")) {
                                 $profile_followers_file = $profile_file_path .  "/" . $profile_file;
                             } else if (str_ends_with($profile_file, "following.txt")) {
                                 $profile_following_file = $profile_file_path .  "/" . $profile_file;
                             }
+                        }
+
+                        if (file_exists($profile_nickname_file)) {
+                            $profile_name_file = $profile_nickname_file;
+                        } else if (file_exists($profile_realname_file)) {
+                            $profile_name_file = $profile_realname_file;
+                        } else if (file_exists($profile_setname_file)) {
+                            $profile_name_file = $profile_setname_file;
                         }
 
 
@@ -95,7 +111,11 @@ $selected_profile = $_GET["profile"];
                             }
                             echo "<img class=\"avatar\" style=\"float:left;\" src=\"" . $profile_photo_data . "\">";
                         }
-                        echo "<p>";
+                        echo "<p";
+                        if (file_exists($profile_nickname_file) and file_exists($profile_realname_file)) {
+                            echo " title=\"" . file_get_contents($profile_realname_file) . "\"";
+                        }
+                        echo ">";
                         if (file_exists($profile_name_file)) {
                             echo "<b>" . file_get_contents($profile_name_file) . "</b>";
                         }
@@ -123,6 +143,21 @@ $selected_profile = $_GET["profile"];
                                 echo floor((time() - $birthdate_timestamp) / 31557600) . "</span>";
                             }
                             echo trim(file_get_contents($profile_sex_file));
+                            if (file_exists($profile_religion_file)) {
+                                if (trim(strtolower(file_get_contents($profile_religion_file))) == "christianity") {
+                                    echo " <span title=\"Christian\">✝</span>";
+                                } else if (trim(strtolower(file_get_contents($profile_religion_file))) == "islam") {
+                                    echo " <span title=\"Muslim\">☪︎</span>";
+                                } else if (trim(strtolower(file_get_contents($profile_religion_file))) == "judaism") {
+                                    echo " <span title=\"Jewish\">✡</span>";
+                                } else if (trim(strtolower(file_get_contents($profile_religion_file))) == "buddhism") {
+                                    echo " <span title=\"Buddist\">☯︎</span>";
+                                } else if (trim(strtolower(file_get_contents($profile_religion_file))) == "hinduism") {
+                                    echo " <span title=\"Hindu\">࿗</span>";
+                                } else if (trim(strtolower(file_get_contents($profile_religion_file))) == "atheism") {
+                                    echo " <span title=\"Athiest\">⚛︎</span>";
+                                }
+                            }
                             echo ")";
                         }
                         echo "</p>";
