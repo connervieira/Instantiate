@@ -29,6 +29,7 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
     }
 }
 
+
 $selected_profile = $_GET["profile"];
 ?>
 <!DOCTYPE html>
@@ -65,10 +66,14 @@ $selected_profile = $_GET["profile"];
                 if (in_array($selected_profile, $profiles)) {
                     $profile_file_path = $instantiate_config["archive"]["path"] . "/" . $selected_profile;
                     if (is_dir($profile_file_path)) { // Only continue if this file-path is a directory.
+                        $profile_id = trim(file_get_contents($profile_file_path . "/id"));
                         $profile_files = array_diff(scandir($profile_file_path), array(".", ".."));
                         asort($profile_files);
                         foreach ($profile_files as $profile_file) { // Iterate through each file in this profile.
-                            if (str_ends_with($profile_file, "profile_pic.jpg")) {
+                            if (str_ends_with($profile_file, $profile_id . ".json.xz")) {
+                                
+                                $profile_instaloader_data = json_decode(shell_exec("xzcat \"" . $profile_file_path . "/" . $profile_file . "\""), true);
+                            } else if (str_ends_with($profile_file, "profile_pic.jpg")) {
                                 $profile_avatar_file = $profile_file_path .  "/" . $profile_file;
                             } else if (str_ends_with($profile_file, "setname.txt")) {
                                 $profile_setname_file = $profile_file_path .  "/" . $profile_file;
@@ -165,6 +170,9 @@ $selected_profile = $_GET["profile"];
                             echo "<p class=\"profile_bio\">" . nl2br(file_get_contents($profile_bio_file)) . "</p>";
                         }
                         echo "</div>";
+                        if (isset($profile_instaloader_data)) {
+                            echo "<p><a href=\"profilefriends.php?profile=$selected_profile&type=followers\"><b>" . $profile_instaloader_data["node"]["edge_followed_by"]["count"] . "</b> followers</a> / <a href=\"profilefriends.php?profile=$selected_profile&type=following\"><b>" . $profile_instaloader_data["node"]["edge_follow"]["count"] . "</b> following</a></p>";
+                        }
                         echo "<br><a class=\"button\" href=\"profilestories.php?profile=$selected_profile\">View Stories</a><br><br>";
                     }
                 }
