@@ -241,7 +241,16 @@ $selected_profile = $_GET["profile"];
                         echo "    </div>";
                         echo "    <p>" . nl2br($posts[$timestamp]["description"]) . "</p>";
                         echo "    <p style=\"margin-bottom:-15px;opacity:0.5;\"><i>" . $posts[$timestamp]["location"] . "</i></p>";
-                        echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["review"]["timezone_offset"]*3600) . "</i></p>";
+                        echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["review"]["timezone_offset"]*3600);
+                        if (file_exists($profile_birthday_file)) {
+                            $years_old = floor(($timestamp - $birthdate_timestamp) / 31557600);
+                            if ($birthday_precision > 0) {
+                                echo " <span style=\"opacity:0.5;\" title=\"$selected_profile was approximately $years_old years old on this date\">~" . $years_old . "yo</span>";
+                            } else {
+                                echo " <span style=\"opacity:0.5;\" title=\"$selected_profile was $years_old years old on this date\">" . $years_old . "yo</span>";
+                            }
+                        }
+                        echo "</i></p>";
                         echo "</div>";
                     }
                     $displayed_posts += 1;
