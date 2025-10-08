@@ -29,7 +29,7 @@ function fetch_posts($profile_file_path) {
                 $posts[$file_timestamp_unix]["link"] = file_get_contents($profile_file_path . "/" . $profile_file);
             } else if (str_contains($profile_file, "_location.txt") == true) {
                 $posts[$file_timestamp_unix]["location"] = file_get_contents($profile_file_path . "/" . $profile_file);
-            } else if (strtolower(pathinfo($profile_file)["extension"]) == "txt") {
+            } else if (str_ends_with($profile_file, "UTC.txt")) {
                 $posts[$file_timestamp_unix]["description"] = file_get_contents($profile_file_path . "/" . $profile_file);
                 $posts[$file_timestamp_unix]["is_story"] = false; // This post can't be a story because it has an associated text file.
             } else if (strtolower(pathinfo($profile_file)["extension"]) == "txt" and str_ends_with($profile_file, "UTC_location.txt")) {
