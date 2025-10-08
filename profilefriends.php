@@ -112,7 +112,7 @@ $selected_profile = $_GET["profile"];
 
                 // On the first loop, only show users who are in the archive, and are followed.
                 foreach ($list as $user) {
-                    if (in_array($user, $profiles) == true and in_array($user, array_keys($instantiate_database[$username]["following"])) == true) {
+                    if (in_array($user, $profiles) == true and isset($username) and isset($instantiate_database[$username]) == true and in_array($user, array_keys($instantiate_database[$username]["following"])) == true) {
                         echo "<a style=\"color:#aaffaa;\" href=\"profileview.php?profile=$user\">$user</a><br>";
                         $displayed_friends++;
                     }
@@ -120,7 +120,7 @@ $selected_profile = $_GET["profile"];
 
                 // On the second loop, only show users who are in the archive, but not followed.
                 foreach ($list as $user) {
-                    if (in_array($user, $profiles) == true and in_array($user, array_keys($instantiate_database[$username]["following"])) == false) {
+                    if (in_array($user, $profiles) == true and (isset($username) == false or isset($instantiate_database[$username]) == false or in_array($user, array_keys($instantiate_database[$username]["following"])) == false)) {
                         echo "<a href=\"profileview.php?profile=$user\">$user</a><br>";
                         $displayed_friends++;
                     }
