@@ -37,7 +37,7 @@ if (is_file($config_file)) {
 
 function load_database() {
     global $instantiate_config;
-    $database_filepath = $instantiate_config["archive"]["path"] . "/instantiate_data.json";
+    $database_filepath = "./instantiate_data.json";
 
     if (file_exists($database_filepath) == false) { // Check to see if the database needs to be created.
         file_put_contents($database_filepath, "{}"); // Set the contents of the database file to the placeholder data.
@@ -55,7 +55,7 @@ function load_database() {
 
 function save_database($data) {
     global $instantiate_config;
-    $database_filepath = $instantiate_config["archive"]["path"] . "/instantiate_data.json";
+    $database_filepath = "./instantiate_data.json";
 
     $encoded_data = json_encode($data, (JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
