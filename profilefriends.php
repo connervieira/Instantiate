@@ -108,15 +108,25 @@ $selected_profile = $_GET["profile"];
                 echo "<p><i>No accounts are recorded for " . $selected_profile . ".</i></p>";
             } else {
                 $displayed_friends = 0;
-                // On the first loop, only show users who are in the archive.
+
+
+                // On the first loop, only show users who are in the archive, and are followed.
                 foreach ($list as $user) {
-                    if (in_array($user, $profiles) == true) {
+                    if (in_array($user, $profiles) == true and in_array($user, array_keys($instantiate_database[$username]["following"])) == true) {
+                        echo "<a style=\"color:#aaffaa;\" href=\"profileview.php?profile=$user\">$user</a><br>";
+                        $displayed_friends++;
+                    }
+                }
+
+                // On the second loop, only show users who are in the archive, but not followed.
+                foreach ($list as $user) {
+                    if (in_array($user, $profiles) == true and in_array($user, array_keys($instantiate_database[$username]["following"])) == false) {
                         echo "<a href=\"profileview.php?profile=$user\">$user</a><br>";
                         $displayed_friends++;
                     }
                 }
 
-                // On the first loop, only show users who are *not* in the archive.
+                // On the third loop, only show users who are *not* in the archive.
                 foreach ($list as $user) {
                     if (in_array($user, $profiles) == false) {
                         echo "<span style=\"opacity:0.5;\">$user</span><br>";
