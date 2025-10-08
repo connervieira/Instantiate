@@ -132,7 +132,7 @@ $selected_profile = $_GET["profile"];
                                 $birthdate_timestamp = $dt->getTimestamp();
 
                                 if (sizeof($birthdate) > 1) {
-                                    $birthday_precision = intval(trim($birthdate[0], "+- "));
+                                    $birthday_precision = intval(trim($birthdate[1], "+- "));
                                 } else {
                                     $birthday_precision = 0;
                                 }
@@ -140,6 +140,8 @@ $selected_profile = $_GET["profile"];
                                 echo "<span";
                                 if ($birthday_precision == 0) {
                                     echo " title=\"" . $birthdate[0] . "\"";
+                                } else if ($birthday_precision > 0) {
+                                    echo " title=\"" . $birthdate[0] . " " . $birthdate[1] . " days\"";
                                 }
                                 echo ">";
                                 if ($birthday_precision > 0) {
@@ -244,7 +246,10 @@ $selected_profile = $_GET["profile"];
                         echo "    <p><i>" . date("Y-m-d H:i:s", $timestamp + $instantiate_config["review"]["timezone_offset"]*3600);
                         if (file_exists($profile_birthday_file)) {
                             $years_old = floor(($timestamp - $birthdate_timestamp) / 31557600);
-                            if ($birthday_precision > 0) {
+                            $days_left_over = ((($timestamp - $birthdate_timestamp)/31557600) - $years_old)*365; // This measures the days past the birthday (remainder).
+                            $days_until = abs(((($timestamp - $birthdate_timestamp)/31557600) - $years_old-1)*365); // This measures the days until the next birthday.
+                            $distance_from_birthday = min($days_left_over, $days_until); // Pick whichever direction is closer to the birthday.
+                            if ($birthday_precision > $distance_from_birthday) {
                                 echo " <span style=\"opacity:0.5;\" title=\"$selected_profile was approximately $years_old years old on this date\">~" . $years_old . "yo</span>";
                             } else {
                                 echo " <span style=\"opacity:0.5;\" title=\"$selected_profile was $years_old years old on this date\">" . $years_old . "yo</span>";
