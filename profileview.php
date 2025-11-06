@@ -104,6 +104,8 @@ $selected_profile = $_GET["profile"];
                             $profile_name_file = $profile_realname_file;
                         } else if (file_exists($profile_setname_file)) {
                             $profile_name_file = $profile_setname_file;
+                        } else { // Fall back on just using the username.
+                            $profile_name_file = $selected_profile;
                         }
 
 
