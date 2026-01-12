@@ -1,7 +1,7 @@
 <?php
 include "./config.php";
-
 include $instantiate_config["auth"]["provider"]["core"];
+include "./utils.php";
 
 
 if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if the user is logged in.
@@ -80,6 +80,7 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                 if ($profile_photo_data == "") {
                     $profile_photo_data = "./assets/img/icons/avatar.svg";
                 }
+                $meta = get_profile_metadata($profile_file_path);
 
                 echo "<a href='./profileview.php?profile=$profile'>";
                 echo "    <div class='profile_card'>";
@@ -88,6 +89,18 @@ if (isset($username) and $_SESSION["authid"] == "dropauth") { // Check to see if
                 echo "        </div>";
                 echo "        <div class='profile_info'>";
                 echo "            <h3>" . $profile . "</h3>";
+                echo "            <p>";
+                if ($meta["name"]["nick"] != null) { echo $meta["name"]["nick"];
+                } else if ($meta["name"]["real"] != null) { echo $meta["name"]["real"];
+                //} else if ($meta["name"]["set"] != null) { echo $meta["name"]["set"];
+                }
+                echo "            </p>";
+                echo "            <p>"; 
+                if ($meta["birthday"]["distance"] < $meta["birthday"]["precision"]) { echo "~"; }
+                echo                  $meta["birthday"]["age"];
+                echo                  $meta["sex"];
+                echo                  $meta["religion"]["symbol"];
+                echo "            </p>";
                 echo "        </div>";
                 echo "    </div>";
                 echo "</a>";

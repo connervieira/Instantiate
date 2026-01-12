@@ -5,7 +5,7 @@ function fetch_posts($profile_file_path) {
     $posts = array();
     foreach ($profile_files as $profile_file) { // Iterate through each file in this profile.
         $should_skip = false;
-        $ignore_files = array("name.txt", "bio.txt", "follow", "sex.txt", "race.txt", "religion.txt", "profile_pic.jpg"); // Ignore metadata files.
+        $ignore_files = array("name.txt", "oldnames.txt", "bio.txt", "follow", "sex.txt", "race.txt", "religion.txt", "profile_pic.jpg"); // Ignore metadata files.
         foreach ($ignore_files as $string) {
             if (str_contains($profile_file, $string)) {
                 $should_skip = true;
@@ -50,6 +50,134 @@ function fetch_posts($profile_file_path) {
         }
     }
     return $posts;
+}
+
+
+function get_profile_metadata($profile_file_path) {
+    $profile_metadata = array(
+        "name" => array(
+            "real" => null,
+            "nick" => null,
+            "set" => null
+        ),
+        "sex" => "", // Single character indicating sex.
+        "birthday" => array(
+            "date" => null, // Birthdate in YYYY-MM-DD
+            "age" => null, // Age in years
+            "precision" => null, // The precision with which the birthday is known (+-N)
+            "distance" => null // How long ago/until the birthday (whichever is closer)
+        ),
+        "religion" => array(
+            "name" => null,
+            "symbol" => null
+        ),
+        "account" => array(
+            "bio" => null,
+            "friends" => array(
+                "following" => null,
+                "followers" => null
+            )
+        )
+    );
+
+    if (is_dir($profile_file_path)) { // Only continue if this file-path is a directory.
+        $profile_id = trim(file_get_contents($profile_file_path . "/id"));
+        $profile_files = array_diff(scandir($profile_file_path), array(".", ".."));
+        asort($profile_files);
+
+        foreach ($profile_files as $profile_file) { // Iterate through each file in this profile.
+            if (str_ends_with($profile_file, $profile_id . ".json.xz")) {
+                $profile_instaloader_data = json_decode(shell_exec("xzcat \"" . $profile_file_path . "/" . $profile_file . "\""), true);
+            } else if (str_ends_with($profile_file, "profile_pic.jpg")) {
+                $profile_avatar_file = $profile_file_path .  "/" . $profile_file;
+            } else if (str_ends_with($profile_file, "setname.txt")) {
+                $profile_setname_file = $profile_file_path .  "/" . $profile_file;
+            } else if (str_ends_with($profile_file, "nickname.txt")) {
+                $profile_nickname_file = $profile_file_path .  "/" . $profile_file;
+            } else if (str_ends_with($profile_file, "name.txt")) {
+                $profile_realname_file = $profile_file_path .  "/" . $profile_file;
+            } else if (str_ends_with($profile_file, "bio.txt")) {
+                $profile_bio_file = $profile_file_path .  "/" . $profile_file;
+            } else if (str_ends_with($profile_file, "birthday.txt")) {
+                $profile_birthday_file = $profile_file_path . "/" . $profile_file;
+            } else if (str_ends_with($profile_file, "sex.txt")) {
+                $profile_sex_file = $profile_file_path .  "/" . $profile_file;
+            } else if (str_ends_with($profile_file, "race.txt")) {
+                $profile_race_file = $profile_file_path .  "/" . $profile_file;
+            } else if (str_ends_with($profile_file, "religion.txt")) {
+                $profile_religion_file = $profile_file_path .  "/" . $profile_file;
+            } else if (str_ends_with($profile_file, "followers.txt")) {
+                $profile_followers_file = $profile_file_path .  "/" . $profile_file;
+            } else if (str_ends_with($profile_file, "following.txt")) {
+                $profile_following_file = $profile_file_path .  "/" . $profile_file;
+            }
+        }
+
+        if (file_exists($profile_nickname_file)) {
+            $profile_metadata["name"]["nick"] = file_get_contents($profile_nickname_file);
+        } else if (file_exists($profile_realname_file)) {
+            $profile_metadata["name"]["real"] = file_get_contents($profile_realname_file);
+        } else if (file_exists($profile_setname_file)) {
+            $profile_metadata["name"]["set"] = file_get_contents($profile_setname_file);
+        }
+
+
+        if (file_exists($profile_birthday_file)) {
+            $birthdate = array_filter(explode("\n", file_get_contents($profile_birthday_file)));
+            $dt = new DateTime($birthdate[0]);
+            $birthdate_timestamp = $dt->getTimestamp();
+
+            if (sizeof($birthdate) > 1) {
+                $birthday_precision = intval(trim($birthdate[1], "+- "));
+            } else {
+                $birthday_precision = 0;
+            }
+
+            $years_old = floor((time() - $birthdate_timestamp) / 31557600);
+
+            $days_left_over = (((time() - $birthdate_timestamp)/31557600) - $years_old)*365; // This measures the days past the birthday (remainder).
+            $days_until = abs((((time() - $birthdate_timestamp)/31557600) - $years_old-1)*365); // This measures the days until the next birthday.
+            $distance_from_birthday = min($days_left_over, $days_until); // Pick whichever direction is closer to the birthday.
+
+            $profile_metadata["birthday"]["date"] = array_filter(explode("\n", file_get_contents($profile_birthday_file)))[0];
+            $profile_metadata["birthday"]["age"] = $years_old;
+            $profile_metadata["birthday"]["precision"] = $birthday_precision;
+            $profile_metadata["birthday"]["distance"] = $distance_from_birthday;
+        }
+        if (file_exists($profile_sex_file)) {
+            $profile_metadata["sex"] = strtoupper(trim(file_get_contents($profile_sex_file)));
+        }
+        if (file_exists($profile_religion_file)) {
+            if (trim(strtolower(file_get_contents($profile_religion_file))) == "christianity") {
+                $profile_metadata["religion"]["name"] = "Christian";
+                $profile_metadata["religion"]["symbol"] = "✝";
+            } else if (trim(strtolower(file_get_contents($profile_religion_file))) == "islam") {
+                $profile_metadata["religion"]["name"] = "Muslim";
+                $profile_metadata["religion"]["symbol"] = "☪︎";
+            } else if (trim(strtolower(file_get_contents($profile_religion_file))) == "judaism") {
+                $profile_metadata["religion"]["name"] = "Jewish";
+                $profile_metadata["religion"]["symbol"] = "✡";
+            } else if (trim(strtolower(file_get_contents($profile_religion_file))) == "buddhism") {
+                $profile_metadata["religion"]["name"] = "Buddhist";
+                $profile_metadata["religion"]["symbol"] = "☯︎";
+            } else if (trim(strtolower(file_get_contents($profile_religion_file))) == "hinduism") {
+                $profile_metadata["religion"]["name"] = "Hindu";
+                $profile_metadata["religion"]["symbol"] = "࿗";
+            } else if (trim(strtolower(file_get_contents($profile_religion_file))) == "atheism") {
+                $profile_metadata["religion"]["name"] = "Athiest";
+                $profile_metadata["religion"]["symbol"] = "⚛︎";
+            }
+        }
+        if (file_exists($profile_bio_file)) {
+            $profile_metadata["account"]["bio"] = nl2br(file_get_contents($profile_bio_file));
+        }
+        if (isset($profile_instaloader_data)) {
+            $profile_metadata["account"]["friends"]["following"] = $profile_instaloader_data["node"]["edge_follow"]["count"];
+            $profile_metadata["account"]["friends"]["followers"] = $profile_instaloader_data["node"]["edge_followed_by"]["count"];
+        }
+    }
+
+    return $profile_metadata;
 }
 
 ?>
