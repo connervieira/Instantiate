@@ -126,23 +126,25 @@ $selected_profile = $_GET["profile"];
                         if (file_exists($profile_name_file)) {
                             echo "<b>" . file_get_contents($profile_name_file) . "</b>";
                         }
+                        if (file_exists($profile_birthday_file)) {
+                            $birthdate = array_filter(explode("\n", file_get_contents($profile_birthday_file)));
+                            $dt = new DateTime($birthdate[0]);
+                            $birthdate_timestamp = $dt->getTimestamp();
+
+                            if (sizeof($birthdate) > 1) {
+                                $birthday_precision = intval(trim($birthdate[1], "+- "));
+                            } else {
+                                $birthday_precision = 0;
+                            }
+
+                            $years_old = floor((time() - $birthdate_timestamp) / 31557600);
+                            $days_left_over = (((time() - $birthdate_timestamp)/31557600) - $years_old)*365; // This measures the days past the birthday (remainder).
+                            $days_until = abs((((time() - $birthdate_timestamp)/31557600) - $years_old-1)*365); // This measures the days until the next birthday.
+                            $distance_from_birthday = min($days_left_over, $days_until); // Pick whichever direction is closer to the birthday.
+                        }
                         if (file_exists($profile_sex_file)) {
                             echo " (";
                             if (file_exists($profile_birthday_file)) {
-                                $birthdate = array_filter(explode("\n", file_get_contents($profile_birthday_file)));
-                                $dt = new DateTime($birthdate[0]);
-                                $birthdate_timestamp = $dt->getTimestamp();
-
-                                if (sizeof($birthdate) > 1) {
-                                    $birthday_precision = intval(trim($birthdate[1], "+- "));
-                                } else {
-                                    $birthday_precision = 0;
-                                }
-
-                                $years_old = floor((time() - $birthdate_timestamp) / 31557600);
-                                $days_left_over = (((time() - $birthdate_timestamp)/31557600) - $years_old)*365; // This measures the days past the birthday (remainder).
-                                $days_until = abs((((time() - $birthdate_timestamp)/31557600) - $years_old-1)*365); // This measures the days until the next birthday.
-                                $distance_from_birthday = min($days_left_over, $days_until); // Pick whichever direction is closer to the birthday.
                                 echo "<span";
                                 if ($birthday_precision > $distance_from_birthday) {
                                     echo " title=\"" . $birthdate[0] . " " . $birthdate[1] . " days\"";
